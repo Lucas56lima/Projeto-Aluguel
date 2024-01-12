@@ -6,6 +6,17 @@ namespace Service.Services
 {
     public class VeiculoService : IVeiculoService
     {
+        // Injeção de dependência
+        private readonly IVeiculoRepository _repository;
+
+        public VeiculoService(IVeiculoRepository repository)
+        {
+
+            _repository = repository;
+
+        }
+
+
         public void GetAsync()
         {
             throw new NotImplementedException();
@@ -42,12 +53,23 @@ namespace Service.Services
                 return "Ano inserido maior do que ano atual!";
             }
 
-            return _veiculoRepository.PostAsync(command);
+            return await _repository.PostAsync(command);
         }
 
         public void PostAsync()
         {
             throw new NotImplementedException();
         }
+
+        public async Task<IEnumerable<VeiculoCommand>> GetDisponivel()
+        {
+            return await _repository.GetDisponivel();
+        }
+
+        public async Task<IEnumerable<VeiculoCommand>> GetAlugado()
+        {
+            return await _repository.GetAlugado();
+        }
+        
     }
 }

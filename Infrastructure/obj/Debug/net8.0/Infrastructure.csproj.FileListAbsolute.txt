@@ -10,3 +10,7 @@ C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\obj\Debug\net8.0\In
 C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
 C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
 C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll
+C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\bin\Debug\net8.0\Domain.dll
+C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\bin\Debug\net8.0\Domain.pdb
+C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.AssemblyReference.cache
+C:\Users\lucas.flima27\Desktop\c#\Application\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.CopyComplete

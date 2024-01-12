@@ -2,6 +2,7 @@
 using Domain.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service.Services;
 
 namespace Application.Controllers
 {
@@ -39,5 +40,22 @@ namespace Application.Controllers
         {
             return Ok();
         }
+
+        [HttpGet]
+        [Route("Disponivel")]
+
+        public async Task<IActionResult> GetDisponivel()
+        {
+            return Ok(await _veiculoService.GetDisponivel());
+        }
+
+        [HttpGet]
+        [Route("Alugado")]
+
+        public async Task<IActionResult> GetAlugado()
+        {
+            return Ok(await _veiculoService.GetAlugado());
+        }
+
     }
 }
