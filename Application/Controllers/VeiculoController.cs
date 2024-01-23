@@ -1,5 +1,7 @@
 ﻿using Domain.Commands;
+using Domain.Enums;
 using Domain.Interface;
+using Domain.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Services;
@@ -28,17 +30,18 @@ namespace Application.Controllers
 
         [HttpGet]
         [Route("SimularAluguel")]
-        public IActionResult GetAsync()
+        public async Task<IActionResult> GetAsync(int DiasSimulacao,ETipoVeiculo tipoVeiculo)
         {
-            return Ok();
+            return Ok(await _veiculoService.SimularAluguel( DiasSimulacao, tipoVeiculo));
         }
 
         [HttpPost]
         [Route("Alugar")]
 
-        public IActionResult PostAsync()
+        public async Task<IActionResult> PostAsync([FromBody] AlugarVeiculoViewModelInput input)
         {
-            return Ok();
+            
+            return Ok(await _veiculoService.AlugarVeiculo(input));
         }
 
         [HttpGet]
@@ -56,6 +59,6 @@ namespace Application.Controllers
         {
             return Ok(await _veiculoService.GetAlugado());
         }
-
+        
     }
 }

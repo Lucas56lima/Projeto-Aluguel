@@ -1,6 +1,10 @@
-﻿using Domain.Commands;
+﻿using CreditCardValidator;
+using Domain.Commands;
 using Domain.Enums;
 using Domain.Interface;
+using Domain.ViewModel;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Service.Services
 {
@@ -15,12 +19,7 @@ namespace Service.Services
             _repository = repository;
 
         }
-
-
-        public void GetAsync()
-        {
-            throw new NotImplementedException();
-        }
+      
 
         public async Task<string> PostAsync(VeiculoCommand command)
         {
@@ -70,6 +69,79 @@ namespace Service.Services
         {
             return await _repository.GetAlugado();
         }
+
+        public Task<VeiculoPrecoCommand> GetAsync(ETipoVeiculo tipoVeiculo)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public async Task<SimularVeiculoAluguelViewModel> SimularAluguel(int diasSimulados, ETipoVeiculo tipoVeiculo)
+        {
+            var veiculoPreco = await _repository.GetAsync(tipoVeiculo);
+            double taxaEstadual = 10.50;
+            double taxaFederal = 3.5;
+            double taxamunicipal = 13.5;
+
+            var simulacao = new SimularVeiculoAluguelViewModel();
+            if (tipoVeiculo == ETipoVeiculo.SUV && diasSimulados > 45)
+            {
+                return null;
+            }
+            simulacao.DiasSimulados = diasSimulados;
+            simulacao.Taxas = (decimal)(taxamunicipal + taxaEstadual + taxaFederal);
+            simulacao.TipoVeiculo = tipoVeiculo;
+            simulacao.ValorDiaria = veiculoPreco.Preco;
+            simulacao.ValorTotal = (diasSimulados * veiculoPreco.Preco) + simulacao.Taxas;
+            return simulacao;
+        }
+
+        public async Task<AlugarVeiculoViewModelInput> AlugarVeiculo(AlugarVeiculoViewModelInput input)
+        {
+            CreditCardDetector detector = new CreditCardDetector(Convert.ToString(input.Cartao.Numero));
+            var numero = detector.CardNumber; // => 4012888888881881
+
+            detector.IsValid(); // => True
+            detector.IsValid(CardIssuer.Maestro); // => False
+
+            var bandeira = detector.Brand; // => CardIssuer.Visa
+            var bandeiraName =  detector.BrandName; // => Visa
+
+            var categoria = detector.IssuerCategory; // => Banking and financial
+
+            var veiculoDisponivel = await ValidarDisponivel(input.PlacaVeiculo);
+            var alugar = new AlugarVeiculoViewModelInput();
+            if (veiculoDisponivel == false)
+            {
+
+                return null;
+            }
+
+            var verificarDatas = await VerificaDataMaior(input.DataRetirada, input.DataDevolucao);
+
+            if (verificarDatas)
+            {
+
+                return null;
+            }
+
+            return alugar;           
+
+        }
+
+        public Task<bool> ValidarDisponivel(string placaVeiculo)
+        {
+           return _repository.ValidarDisponivel(placaVeiculo);
+            
+        }
+
+        public Task<bool> VerificaDataMaior(DateTime dataRetirada, DateTime dataDevolucao)
+        {
+            return _repository.VerificaDataMaior(dataRetirada, dataDevolucao);                             
+
+        }       
+
         
     }
 }

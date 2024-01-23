@@ -44,3 +44,4 @@ C:\Users\lucas.flima27\Desktop\c#\Application\Application\bin\Debug\net8.0\runti
 C:\Users\lucas.flima27\Desktop\c#\Application\Application\bin\Debug\net8.0\runtimes\win-x86\native\sni.dll
 C:\Users\lucas.flima27\Desktop\c#\Application\Application\bin\Debug\net8.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\lucas.flima27\Desktop\c#\Application\Application\bin\Debug\net8.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\lucas.flima27\Desktop\c#\Application\Application\bin\Debug\net8.0\CreditCardValidator.dll

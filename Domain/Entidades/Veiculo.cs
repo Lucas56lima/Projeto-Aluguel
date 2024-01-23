@@ -11,6 +11,8 @@ namespace Domain.Entidades
         public ETipoVeiculo TipoVeiculo { get;set;}
         public string Estado {  get;set;}
         public EFabricante Fabricante { get;set;}
+
+        public decimal Preco { get; set; }
         public bool Alugado { get;set;}
 
     }
