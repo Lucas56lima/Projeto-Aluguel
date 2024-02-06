@@ -1,10 +1,6 @@
 ﻿using Domain.Commands;
-using Domain.Enums;
 using Domain.Interface;
-using Domain.ViewModel;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Service.Services;
 
 namespace Application.Controllers
 {
@@ -22,43 +18,33 @@ namespace Application.Controllers
 
         [HttpPost]
         [Route("CadastrarVeiculo")]
-        public async Task<IActionResult> PostAsync([FromBody] VeiculoCommand command)
-        {            
-            return Ok(await _veiculoService.PostAsync(command));
-        }
-
-
-        [HttpGet]
-        [Route("SimularAluguel")]
-        public async Task<IActionResult> GetAsync(int DiasSimulacao,ETipoVeiculo tipoVeiculo)
+        public async Task<IActionResult> PostAsyncVeiculo([FromBody] VeiculoCommand command)
         {
-            return Ok(await _veiculoService.SimularAluguel( DiasSimulacao, tipoVeiculo));
-        }
-
-        [HttpPost]
-        [Route("Alugar")]
-
-        public async Task<IActionResult> PostAsync([FromBody] AlugarVeiculoViewModelInput input)
-        {
-            
-            return Ok(await _veiculoService.AlugarVeiculo(input));
+            return Ok(await _veiculoService.PostAsyncVeiculo(command));
         }
 
         [HttpGet]
-        [Route("Disponivel")]
-
-        public async Task<IActionResult> GetDisponivel()
+        [Route("ConsultarVeiculos")]
+        public async Task<IActionResult> GetAsyncVeiculo(string?placa)
         {
-            return Ok(await _veiculoService.GetDisponivel());
+            return Ok(await _veiculoService.GetAsyncVeiculo(placa));
         }
 
-        [HttpGet]
-        [Route("Alugado")]
+        [HttpPut]
+        [Route("AlterarCadastroVeiculo")]
 
-        public async Task<IActionResult> GetAlugado()
+        public async Task<IActionResult> PutAsyncVeiculo(int veiculoID,string placa)
         {
-            return Ok(await _veiculoService.GetAlugado());
+            return Ok(await _veiculoService.PutAsyncVeiculo(veiculoID, placa));
         }
-        
+
+        [HttpDelete]
+        [Route("InativarCadastroVeiculo")]
+
+        public async Task<IActionResult> DeleteAsyncVeiculo(int veiculoID)
+        {
+            return Ok(await _veiculoService.DeleteAsyncVeiculo(veiculoID));
+        }
     }
-}
+}        
+

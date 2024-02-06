@@ -1,5 +1,5 @@
 using Domain.Interface;
-using Infrastructure.Repository;
+using Repository.Repository;
 using Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +12,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IVeiculoService,VeiculoService>();
 builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
-builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-
+builder.Services.AddScoped<IEntregadorService, EntregadorService>();
+builder.Services.AddScoped<IEntregadorRepository, EntregadorRepository>();
+builder.Services.AddScoped<IFileStorageService,LocalFileStorageService>();
 
 var app = builder.Build();
 

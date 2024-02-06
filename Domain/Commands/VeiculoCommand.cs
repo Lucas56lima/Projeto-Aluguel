@@ -1,20 +1,12 @@
-﻿using Domain.Enums;
-
-namespace Domain.Commands
+﻿namespace Domain.Commands
 {
-    public class VeiculoCommand    {
-        
+    public class VeiculoCommand {
         public int VeiculoId { get; set; }
-        public string VeiculoName { get; set; }
-        public string Placa { get; set; }
-        public int AnoFabricacao { get; set; }
-        public ETipoVeiculo TipoVeiculo { get; set; }
-        public string Estado { get; set; }
-        public EFabricante Fabricante { get; set; }
-
-        public decimal Preco {  get; set; } 
-        public bool Alugado { get; set; } = false;
-        
+        public DateTime dataVeiculo { get; set; }
+        public string modeloVeiculo { get; set; }
+        public string placaVeiculo { get; set; }
+        public int anoVeiculo { get; set; }      
+                
     }
   
 }
