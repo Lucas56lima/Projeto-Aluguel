@@ -1,6 +1,8 @@
 ﻿using Domain.Commands;
 using Domain.Interface;
+using Domain.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Service.Services;
 
 namespace Application.Controllers
 {
@@ -12,19 +14,38 @@ namespace Application.Controllers
 
         public EntregadorController(IEntregadorService entregadorService)
         {
-            _entregadorservice = entregadorService;
-            
+            _entregadorservice = entregadorService;            
         }
 
         [HttpPost]
         [Route("CadastrarEntregador")]
-        public async Task<IActionResult> PostAsync([FromBody] EntregadorCommand command)
-        {           
-                     
-          return Ok(await _entregadorservice.PostAsync(command));
-          
+        public async Task<IActionResult> PostEntregadorAsync([FromBody] EntregadorCommand command)
+        {       
+                    
+          return Ok(await _entregadorservice.PostEntregadorAsync(command));          
+        }
+        [HttpPut]
+        [Route("InserirImagemCNH")]
+
+        public async Task<IActionResult> PutImageAsync(string cnpj, [FromBody] ImagemCommand imagemCommand)
+        {
+            return Ok(await _entregadorservice.PutImageAsync(cnpj, imagemCommand));
         }
 
+        [HttpGet]
+        [Route("SimularAluguel")]
+        public async Task<IActionResult> SimularAluguel(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
+        {
+            return Ok(await _entregadorservice.SimularAluguel(plano, cnpj, dataInicio,dataDevolucao));
+        }
+
+        [HttpPost]
+        [Route("AlugarVeiculo")]
+
+        public async Task<IActionResult> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao, AlugarVeiculoViewModel alugarViewModel)
+        {
+            return Ok(await _entregadorservice.PostAlugarAsync(plano,cnpj,dataInicio,dataDevolucao, alugarViewModel));
+        }
     }
 }
 

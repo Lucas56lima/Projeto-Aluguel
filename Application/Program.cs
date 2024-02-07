@@ -14,7 +14,6 @@ builder.Services.AddScoped<IVeiculoService,VeiculoService>();
 builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 builder.Services.AddScoped<IEntregadorService, EntregadorService>();
 builder.Services.AddScoped<IEntregadorRepository, EntregadorRepository>();
-builder.Services.AddScoped<IFileStorageService,LocalFileStorageService>();
 
 var app = builder.Build();
 

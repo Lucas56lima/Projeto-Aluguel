@@ -9,7 +9,7 @@ namespace Repository.Repository
 {
     public class VeiculoRepository: IVeiculoRepository
     {
-        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=Veiculo";              
+        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";              
 
         public async Task<string> PostAsyncVeiculo(VeiculoCommand command)
         {
@@ -54,7 +54,7 @@ namespace Repository.Repository
 
         public async Task<bool> VerificaPlaca(string placa)
         {
-            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=Veiculo";
+            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
 
             string queryGetPlaca = @"SELECT placaVeiculo FROM CadastroVeiculo WHERE placaVeiculo = @placa";
 

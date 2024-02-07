@@ -2,67 +2,186 @@
 using Dapper;
 using Domain.Commands;
 using Domain.Interface;
+using Domain.ViewModel;
 using Npgsql;
 
+
 namespace Repository.Repository
-{      
+{
     public class EntregadorRepository : IEntregadorRepository
     {
-       
-        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=Veiculo";
-        public async Task<string> PostAsync(EntregadorCommand command)
+
+        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+        public async Task<string> PostEntregadorAsync(EntregadorCommand command)
         {
             string queryInsert = @"
-            INSERT INTO Clientes (nomeEntregador,cnpjEntregador,nascimentoEntregador,numeroCNH,tipoCNH) 
+            INSERT INTO CadastroEntregador (nomeEntregador,cnpjEntregador,nascimentoEntregador,numeroCNH,tipoCNH) 
             VALUES (@Nome,@cnpj,@Nascimento,@Habilitacao,@TipoCNH)";
 
             using (IDbConnection conn = new NpgsqlConnection(conexao))
             {
-                var fotoCNH = new MemoryStream();
                 conn.Execute(queryInsert, new
                 {
                     Nome = command.nomeEntregador,
-                    Cpf = command.cnpjEntregador,
+                    cnpj = command.cnpjEntregador,
                     Nascimento = command.nascimentoEntregador,
                     Habilitacao = command.numeroCNH,
-                    TipoCNH = command.tipoCNH,
-                    FotoCNH = fotoCNH,
-                }); 
+                    TipoCNH = command.tipoCNH
+                });
             }
-            
+
             return "Cliente cadastrado com sucesso!";
 
         }
 
-        public async Task<bool> SalvarFotoCNH(string caminho, Stream fotoCNH)
+        public async Task<string> PutImageAsync(string cnpj, ImagemCommand imagemCommand)
+        {
+            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+            string queryUploadImg = @"UPDATE CadastroEntregador SET arquivoCNH=@nomeArquivo WHERE cnpjEntregador=@cnpj";
+            string caminhoCompleto = imagemCommand.nomeArquivo;
+
+            string nomeArquivo = Path.GetFileName(caminhoCompleto);
+
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+
+                conn.Execute(queryUploadImg, new
+                {
+                    cnpj = cnpj,
+                    nomeArquivo = nomeArquivo
+                });
+
+                var streamIMG = await RecuperarFotoCNHAsync(imagemCommand.nomeArquivo);
+
+                await SalvarFotoCNHAsync(nomeArquivo, streamIMG);
+
+                return "Imagem Cadastrada com sucesso!";
+
+            }
+        }
+
+        public async Task<string> SalvarFotoCNHAsync(string nomeArquivo, Stream fotoCNH)
         {
             try
             {
-                // Verifica se a pasta para armazenar as fotos da CNH existe, se não, cria-a
+                string caminho = @"C:\Users\Usuário\source\repos\AluguelVeiculo\Repository\Images\";
+
                 if (!Directory.Exists(caminho))
                 {
                     Directory.CreateDirectory(caminho);
                 }
-                // Gera um nome de arquivo único para a foto da CNH
-                string nomeArquivoFotoCNH = $"{Guid.NewGuid()}.png"; // Ou .bmp se preferir
+
+                string nomeArquivoFotoCNH = $"{nomeArquivo}.png";
                 string caminhoCompletoFotoCNH = Path.Combine(caminho, nomeArquivoFotoCNH);
 
-                // Salva a foto da CNH no disco local
                 using (var fileStream = new FileStream(caminhoCompletoFotoCNH, FileMode.Create))
                 {
                     await fotoCNH.CopyToAsync(fileStream);
                 }
 
-                return true; // Sucesso ao salvar a foto
+                return "Imagem salva com sucesso";
             }
             catch (Exception ex)
             {
-                // Tratamento de exceção
                 Console.WriteLine($"Erro ao salvar foto da CNH: {ex.Message}");
-                return false;
+                return "Não foi possível salvar a imagem!";
             }
         }
 
+        public async Task<Stream> RecuperarFotoCNHAsync(string nomeArquivo)
+        {
+
+            return new FileStream(nomeArquivo, FileMode.Open);
+        }
+
+        public async Task<bool> ValidaCNPJ(string cnpj)
+        {
+            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+            string queryValidaCnpj = @"SELECT cnpjentregador FROM CadastroEntregador WHERE cnpjentregador=@cnpj";
+
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+
+                string cnpjCadastrado = await conn.QueryFirstOrDefaultAsync<string>(queryValidaCnpj, new { cnpj = cnpj });
+
+                if (cnpj == cnpjCadastrado && cnpjCadastrado != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }            
+        }
+        public async Task<bool> ValidaCNH(string cnh)
+        {
+
+            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+            string queryValidaCnh = @"SELECT numerocnh FROM CadastroEntregador WHERE numerocnh=@cnh";
+
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+
+                string cnhCadastrada = await conn.QueryFirstOrDefaultAsync<string>(queryValidaCnh, new { cnh = cnh });
+
+                if (cnh == cnhCadastrada && cnhCadastrada != null)
+                {
+                    return true;
+                }
+
+                else
+                {
+                    return false;
+                }
+            }            
+        }
+        public async Task<string> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao, AlugarVeiculoViewModel alugarViewModel)
+        {
+            return "Veiculo alugado";
+        }
+
+        public async Task<bool> VerificaDataMaior(DateTime dataInicio, DateTime dataDevolucao)
+        {
+            int result = DateTime.Compare(dataInicio, dataDevolucao);
+
+            if(result > 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<decimal> GetValorDiaria(int plano)
+        {
+            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+            string queryGetDiaria = @"SELECT valordiaria FROM planoslocacao WHERE dias=@plano";
+
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+                decimal diaria = await conn.QueryFirstOrDefaultAsync<decimal>(queryGetDiaria, new { plano = plano });
+                return diaria;                      
+            }            
+        }
+
+        public async Task<bool> GetVeiculosDisponiveis()
+        {
+            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+            string queryGetDisponivel = @"SELECT alugado FROM CadastroVeiculo WHERE alugado=false";
+
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+                var disponibilidade = await conn.QueryFirstOrDefaultAsync<bool>(queryGetDisponivel);
+
+                if (disponibilidade != false)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+        
     }
 }
     
