@@ -1062,24 +1062,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Usuário\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\DELL\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Usuário\\source\\repos\\AluguelVeiculo\\Repository\\Repository.csproj",
+      "projectUniqueName": "C:\\Users\\DELL\\Source\\Repos\\Aluguel\\Repository\\Repository.csproj",
       "projectName": "Repository",
-      "projectPath": "C:\\Users\\Usuário\\source\\repos\\AluguelVeiculo\\Repository\\Repository.csproj",
-      "packagesPath": "C:\\Users\\Usuário\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Usuário\\source\\repos\\AluguelVeiculo\\Repository\\obj\\",
+      "projectPath": "C:\\Users\\DELL\\Source\\Repos\\Aluguel\\Repository\\Repository.csproj",
+      "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\DELL\\Source\\Repos\\Aluguel\\Repository\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Usuário\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1093,8 +1088,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Usuário\\source\\repos\\AluguelVeiculo\\Domain\\Domain.csproj": {
-              "projectPath": "C:\\Users\\Usuário\\source\\repos\\AluguelVeiculo\\Domain\\Domain.csproj"
+            "C:\\Users\\DELL\\Source\\Repos\\Aluguel\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\DELL\\Source\\Repos\\Aluguel\\Domain\\Domain.csproj"
             }
           }
         }

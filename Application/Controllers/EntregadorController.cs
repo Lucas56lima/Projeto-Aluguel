@@ -1,8 +1,6 @@
 ﻿using Domain.Commands;
 using Domain.Interface;
-using Domain.ViewModel;
 using Microsoft.AspNetCore.Mvc;
-using Service.Services;
 
 namespace Application.Controllers
 {
@@ -42,9 +40,9 @@ namespace Application.Controllers
         [HttpPost]
         [Route("AlugarVeiculo")]
 
-        public async Task<IActionResult> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao, AlugarVeiculoViewModel alugarViewModel)
+        public async Task<IActionResult> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
         {
-            return Ok(await _entregadorservice.PostAlugarAsync(plano,cnpj,dataInicio,dataDevolucao, alugarViewModel));
+            return Ok(await _entregadorservice.PostAlugarAsync(plano,cnpj,dataInicio,dataDevolucao));
         }
     }
 }

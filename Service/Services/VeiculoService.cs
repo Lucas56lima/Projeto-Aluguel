@@ -3,12 +3,12 @@ using Domain.Interface;
 
 namespace Service.Services
 {
-    public class VeiculoService : IVeiculoService
+    public class VeiculoService : IAdminService
     {
         // Injeção de dependência
-        private readonly IVeiculoRepository _repository;
+        private readonly IAdminRepository _repository;
 
-        public VeiculoService(IVeiculoRepository repository)
+        public VeiculoService(IAdminRepository repository)
         {
 
             _repository = repository;

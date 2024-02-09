@@ -1,9 +1,8 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
 using Domain.Commands;
 using Domain.Interface;
-using Domain.ViewModel;
 using Npgsql;
+using System.Data;
 
 
 namespace Repository.Repository
@@ -94,7 +93,7 @@ namespace Repository.Repository
             return new FileStream(nomeArquivo, FileMode.Open);
         }
 
-        public async Task<bool> ValidaCNPJ(string cnpj)
+        public async Task<int> ValidaCNPJ(string cnpj)
         {
             string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
             string queryValidaCnpj = @"SELECT cnpjentregador FROM CadastroEntregador WHERE cnpjentregador=@cnpj";
@@ -102,43 +101,40 @@ namespace Repository.Repository
             using (IDbConnection conn = new NpgsqlConnection(conexao))
             {
 
-                string cnpjCadastrado = await conn.QueryFirstOrDefaultAsync<string>(queryValidaCnpj, new { cnpj = cnpj });
+                int cnpjCadastrado = await conn.QueryFirstOrDefaultAsync<int>(queryValidaCnpj, new { cnpj = cnpj });
 
-                if (cnpj == cnpjCadastrado && cnpjCadastrado != null)
+                if (cnpjCadastrado >= 0 && cnpjCadastrado != null)
                 {
-                    return true;
+                    return cnpjCadastrado;
                 }
                 else
                 {
-                    return false;
+                    return -1;
                 }
             }            
         }
-        public async Task<bool> ValidaCNH(string cnh)
+        public async Task<string> ValidaCNH(string cnh)
         {
 
             string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
-            string queryValidaCnh = @"SELECT numerocnh FROM CadastroEntregador WHERE numerocnh=@cnh";
+            string queryValidaCnh = @"SELECT categoria FROM CadastroEntregador WHERE numerocnh=@cnh";
 
             using (IDbConnection conn = new NpgsqlConnection(conexao))
             {
 
-                string cnhCadastrada = await conn.QueryFirstOrDefaultAsync<string>(queryValidaCnh, new { cnh = cnh });
+                string categoriaCNH  = await conn.QueryFirstOrDefaultAsync<string>(queryValidaCnh, new { cnh = cnh });
 
-                if (cnh == cnhCadastrada && cnhCadastrada != null)
+                if (categoriaCNH != null)
                 {
-                    return true;
+                    return categoriaCNH;
                 }
 
-                else
-                {
-                    return false;
-                }
+                return null;
             }            
         }
-        public async Task<string> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao, AlugarVeiculoViewModel alugarViewModel)
+        public async Task<string> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
         {
-            return "Veiculo alugado";
+            return "Veículo Alugado!";
         }
 
         public async Task<bool> VerificaDataMaior(DateTime dataInicio, DateTime dataDevolucao)
