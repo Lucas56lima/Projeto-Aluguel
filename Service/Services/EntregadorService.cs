@@ -13,38 +13,53 @@ namespace Service.Services
             _repository = repository;            
         }        
 
-        public async Task<string> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
+        public async Task<AlugarVeiculoViewModel> PostAlugarAsync(string cnpj, AlugarVeiculoViewModel aluguelViewModel)
         {
             
-            var validaData = await VerificaDataMaior(dataInicio, dataDevolucao);
-            if (validaData)
+            if(aluguelViewModel.plano == 0)
             {
-                return "Data inicial não pode ser maior do que data de devolução!";
+                Console.WriteLine("Todos os campos são obrigatórios");
+                return null;
+            }            
+            aluguelViewModel.dataInicio = aluguelViewModel.dataInicio.AddDays(1);
+            var validaData = await VerificaDataMaior(aluguelViewModel.dataInicio, aluguelViewModel.dataDevolucao);
+            if (validaData)
+            {                
+                Console.WriteLine("Data inicial não pode ser maior do que data de devolução!");
+                return null;
             }
 
             var validacnpj = await ValidaCNPJ(cnpj);
 
-            if (validacnpj < 0)
+            if (!validacnpj)
             {
-                return "CNPJ inexistente!";
+                Console.WriteLine("CNPJ inexistente!");
+                return null;               
+
             }
 
             var disponibilidade = await GetVeiculosDisponiveis();
-            if (!disponibilidade)
+            if (disponibilidade == 0)
             {
-               return "Não há veículos disponíveis!";
+                Console.WriteLine("Não há veículos disponíveis!");
+                return null;               
             }
 
-            if(plano > 7 || plano > 15 || plano > 30) 
+            if(aluguelViewModel.plano > 7  & aluguelViewModel.plano < 15 ||aluguelViewModel.plano > 15 && aluguelViewModel.plano < 30 || aluguelViewModel.plano > 30) 
             {
-                return "Por gentileza insira plano com 7, 15 e 30 diárias!";
+                Console.WriteLine("Por gentileza insira plano com 7, 15 e 30 diárias!");
+                return null;
             }
 
-            var alugar = await SimularAluguel(plano, cnpj, dataInicio,dataDevolucao);
+            var validaID = await GetEntregadorID(cnpj);
 
-            MostrarSimulacao(alugar);
+            if(validaID == 0)
+            {
+                Console.WriteLine("CNPJ incorreto!");
+                return null;
+            }            
 
-            return await _repository.PostAlugarAsync(plano,cnpj,dataInicio,dataDevolucao);
+            return await _repository.PostAlugarAsync(cnpj,aluguelViewModel);
         }
 
         public async Task<string> PostEntregadorAsync(EntregadorCommand command)   
@@ -56,7 +71,7 @@ namespace Service.Services
 
             var validaCNPJ = await ValidaCNPJ(command.cnpjEntregador);
             var validaCNH = await ValidaCNH(command.numeroCNH);
-            if (validaCNPJ >= 0)
+            if (validaCNPJ)
             {
                 return "CNPJ já cadastrado";
             }
@@ -66,7 +81,7 @@ namespace Service.Services
                 return "CNH já cadastrada";
             }
             
-            if(validaCNH != "A" || validaCNH != "AB" && validaCNH != null)
+            if(command.tipoCNH != "A" && command.tipoCNH != "AB")
             {
                 return "Somente habilitações A e AB são permitidas";
             }
@@ -83,7 +98,7 @@ namespace Service.Services
 
             var validaCNPJ = await ValidaCNPJ(cnpj);
 
-            if (validaCNPJ < 0)
+            if (!validaCNPJ)
             {
                 return "CNPJ inválido, por gentileza tente novamente";
             }                      
@@ -106,7 +121,7 @@ namespace Service.Services
             return await _repository.ValidaCNH(cnh);
         }
 
-        public async Task<int> ValidaCNPJ(string cnpj)
+        public async Task<bool> ValidaCNPJ(string cnpj)
         {
             return await _repository.ValidaCNPJ(cnpj);
         }
@@ -121,53 +136,14 @@ namespace Service.Services
             return await _repository.GetValorDiaria(plano);
         }
 
-        public async Task<bool> GetVeiculosDisponiveis()
+        public async Task<int> GetVeiculosDisponiveis()
         {
             return await _repository.GetVeiculosDisponiveis();
         }
 
         public async Task<AlugarVeiculoViewModel> SimularAluguel(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
         {
-            decimal taxaPlano7 = 0.2m;
-            decimal taxaPlano15 = 0.4m;
-            decimal taxaPlano30 = 0.6m;
-
-            var simulacao = new AlugarVeiculoViewModel();
-            var diaria = await GetValorDiaria(plano);
-
-            simulacao.plano = plano;
-            simulacao.dataInicio = dataInicio;
-            simulacao.dataDevolucao = dataDevolucao;
-
-            int diferencaDias = (dataDevolucao - dataInicio).Days;
-
-            if (diferencaDias > 0 && plano == 7)
-            {
-                simulacao.valorDiaria = diaria + (diaria * taxaPlano7);
-                simulacao.dataPrevisaoDevolucao = dataInicio.AddDays(7);
-            }
-            else if (diferencaDias > 0 && plano == 15)
-            {
-                simulacao.valorDiaria = diaria + (diaria * taxaPlano15);
-                simulacao.dataPrevisaoDevolucao = dataInicio.AddDays(15);
-            }
-            else if (diferencaDias > 0 && plano == 30)
-            {
-                simulacao.valorDiaria = diaria + (diaria * taxaPlano30);
-                simulacao.dataPrevisaoDevolucao = dataInicio.AddDays(30);
-            }
-
-            diferencaDias = (dataDevolucao - simulacao.dataDevolucao).Days;
-
-            simulacao.valorTotal = simulacao.valorDiaria * plano;
-
-            if (diferencaDias > 0)
-            {
-                decimal acrescimo = 50 * diferencaDias;
-                simulacao.valorTotal += acrescimo;
-            }            
-
-            return simulacao;
+            return await _repository.SimularAluguel(plano, cnpj, dataInicio, dataDevolucao);
         }
 
         private void MostrarSimulacao(AlugarVeiculoViewModel simulacao)
@@ -181,6 +157,11 @@ namespace Service.Services
             Console.WriteLine($"Data Devolução: {simulacao.dataDevolucao}");
             Console.WriteLine($"Data Previsão Devolução: {simulacao.dataPrevisaoDevolucao}");
             Console.WriteLine($"Valor Total: {simulacao.valorTotal}");
+        }
+
+        public async Task<int> GetEntregadorID(string cnpj)
+        {
+            return await _repository.GetEntregadorID(cnpj);
         }
     }
 

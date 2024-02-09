@@ -10,7 +10,6 @@ namespace Application.Controllers
     {
 
         private readonly IAdminService _adminService;
-
         public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
@@ -44,6 +43,13 @@ namespace Application.Controllers
         public async Task<IActionResult> DeleteAsyncVeiculo(int veiculoID)
         {
             return Ok(await _adminService.DeleteAsyncVeiculo(veiculoID));
+        }
+
+        [HttpPost]
+        [Route("CadastrarPedido")]
+        public async Task<IActionResult> PostAsyncPedido([FromBody] PedidoCommand pedidoCommand)
+        {
+            return Ok(await _adminService.PostAsyncPedido(pedidoCommand));
         }
     }
 }        

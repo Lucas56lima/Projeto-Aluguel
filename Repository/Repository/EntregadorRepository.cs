@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using Domain.Commands;
 using Domain.Interface;
+using Domain.ViewModel;
 using Npgsql;
 using System.Data;
+using RabbitMQ.Client;
 
 
 namespace Repository.Repository
@@ -10,7 +12,7 @@ namespace Repository.Repository
     public class EntregadorRepository : IEntregadorRepository
     {
 
-        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=*****;Database=AluguelVeiculos";
         public async Task<string> PostEntregadorAsync(EntregadorCommand command)
         {
             string queryInsert = @"
@@ -33,9 +35,35 @@ namespace Repository.Repository
 
         }
 
+        public async Task<AlugarVeiculoViewModel> PostAlugarAsync(string cnpj, AlugarVeiculoViewModel aluguelViewModel)
+        {   
+            string queryAlugar = "UPDATE CadastroVeiculo SET fk_entregadorid = @entregadorID, alugado=True WHERE veiculoID = @veiculoID ";
+            string queryUpdateEntregador = "UPDATE CadastroEntregador SET locacao = True WHERE entregadorID = @entregadorID";
+
+            int entregadorID = await GetEntregadorID(cnpj);
+            int veiculoID = await GetVeiculosDisponiveis();
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+
+
+                conn.Execute(queryAlugar, new
+                {
+                    entregadorID = entregadorID,
+                    veiculoID = veiculoID
+                });
+
+                conn.Execute(queryUpdateEntregador, new
+                {
+                    entregadorID = entregadorID
+                });
+                var alugar = await SimularAluguel(aluguelViewModel.plano, cnpj, aluguelViewModel.dataInicio, aluguelViewModel.dataDevolucao);
+                
+               return alugar;
+            }
+        }
+
         public async Task<string> PutImageAsync(string cnpj, ImagemCommand imagemCommand)
-        {
-            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+        {             
             string queryUploadImg = @"UPDATE CadastroEntregador SET arquivoCNH=@nomeArquivo WHERE cnpjEntregador=@cnpj";
             string caminhoCompleto = imagemCommand.nomeArquivo;
 
@@ -93,31 +121,27 @@ namespace Repository.Repository
             return new FileStream(nomeArquivo, FileMode.Open);
         }
 
-        public async Task<int> ValidaCNPJ(string cnpj)
+        public async Task<bool> ValidaCNPJ(string cnpj)
         {
-            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
-            string queryValidaCnpj = @"SELECT cnpjentregador FROM CadastroEntregador WHERE cnpjentregador=@cnpj";
+           string queryValidaCnpj = @"SELECT cnpjEntregador FROM CadastroEntregador WHERE cnpjEntregador=@cnpj";
 
             using (IDbConnection conn = new NpgsqlConnection(conexao))
             {
 
-                int cnpjCadastrado = await conn.QueryFirstOrDefaultAsync<int>(queryValidaCnpj, new { cnpj = cnpj });
+                string cnpjCadastrado = await conn.QueryFirstOrDefaultAsync<string>(queryValidaCnpj, new { cnpj = cnpj });
 
-                if (cnpjCadastrado >= 0 && cnpjCadastrado != null)
+                if (cnpjCadastrado == cnpj && cnpjCadastrado != null)
                 {
-                    return cnpjCadastrado;
+                    return true;
                 }
-                else
-                {
-                    return -1;
-                }
+                
+               return false;
+                
             }            
         }
         public async Task<string> ValidaCNH(string cnh)
-        {
-
-            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
-            string queryValidaCnh = @"SELECT categoria FROM CadastroEntregador WHERE numerocnh=@cnh";
+        {   
+           string queryValidaCnh = @"SELECT tipoCNH FROM CadastroEntregador WHERE numerocnh=@cnh";
 
             using (IDbConnection conn = new NpgsqlConnection(conexao))
             {
@@ -131,11 +155,7 @@ namespace Repository.Repository
 
                 return null;
             }            
-        }
-        public async Task<string> PostAlugarAsync(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
-        {
-            return "Veículo Alugado!";
-        }
+        }       
 
         public async Task<bool> VerificaDataMaior(DateTime dataInicio, DateTime dataDevolucao)
         {
@@ -151,7 +171,6 @@ namespace Repository.Repository
 
         public async Task<decimal> GetValorDiaria(int plano)
         {
-            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
             string queryGetDiaria = @"SELECT valordiaria FROM planoslocacao WHERE dias=@plano";
 
             using (IDbConnection conn = new NpgsqlConnection(conexao))
@@ -161,23 +180,84 @@ namespace Repository.Repository
             }            
         }
 
-        public async Task<bool> GetVeiculosDisponiveis()
+        public async Task<int> GetVeiculosDisponiveis()
         {
-            string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
-            string queryGetDisponivel = @"SELECT alugado FROM CadastroVeiculo WHERE alugado=false";
+            string queryGetDisponivel = @"SELECT veiculoID FROM CadastroVeiculo WHERE alugado=false";
 
             using (IDbConnection conn = new NpgsqlConnection(conexao))
             {
-                var disponibilidade = await conn.QueryFirstOrDefaultAsync<bool>(queryGetDisponivel);
+                int disponibilidade = await conn.QueryFirstOrDefaultAsync<int>(queryGetDisponivel);
 
-                if (disponibilidade != false)
-                {
-                    return false;
-                }
-                return true;
+                return disponibilidade;
             }
         }
-        
+
+        public async Task<AlugarVeiculoViewModel> SimularAluguel(int plano, string cnpj, DateTime dataInicio, DateTime dataDevolucao)
+        {
+            decimal taxaPlano7 = 0.2m;
+            decimal taxaPlano15 = 0.4m;
+            decimal taxaPlano30 = 0.6m;
+
+            var simulacao = new AlugarVeiculoViewModel();
+            var diaria = await GetValorDiaria(plano);
+
+            simulacao.plano = plano;
+            simulacao.dataInicio = dataInicio;
+            simulacao.dataDevolucao = dataDevolucao;
+            simulacao.valorDiaria = diaria;
+            if(plano == 7)
+            {
+              simulacao.dataPrevisaoDevolucao = dataInicio.AddDays(7);
+            }
+            else if(plano == 15)
+            {
+                simulacao.dataPrevisaoDevolucao = dataInicio.AddDays(15);
+            }          
+            else if(plano == 30)
+            {
+              simulacao.dataPrevisaoDevolucao = dataInicio.AddDays(30);
+            }        
+                    
+            int diferencaDias = (simulacao.dataPrevisaoDevolucao - dataDevolucao).Days;
+
+            if(diferencaDias > 0 && simulacao.plano == 7)
+            {
+                simulacao.valorDiaria = (diaria + (diaria * taxaPlano7)+diaria)/2;
+            }
+
+            else if (diferencaDias > 0 && simulacao.plano == 15)
+            {
+                simulacao.valorDiaria = (diaria + (diaria * taxaPlano15) + diaria) / 2;
+            }
+
+            else if (diferencaDias > 0 && simulacao.plano == 30)
+            {
+                simulacao.valorDiaria = (diaria + (diaria * taxaPlano30) + diaria) / 2;
+            }
+
+            diferencaDias = (dataDevolucao - simulacao.dataPrevisaoDevolucao).Days;
+
+            if (diferencaDias > 0)
+            {
+                decimal acrescimo = (50 * diferencaDias) + simulacao.valorTotal;
+                simulacao.valorTotal = acrescimo;
+            }
+
+            simulacao.valorTotal = simulacao.valorDiaria * simulacao.plano;
+
+            return simulacao;
+        }
+
+        public async Task<int> GetEntregadorID(string cnpj)
+        {
+            string queryGetID = @"SELECT entregadorID FROM CadastroEntregador WHERE cnpjEntregador=@cnpj";
+
+            using (IDbConnection conn = new NpgsqlConnection(conexao))
+            {
+                int entregadorID = await conn.QueryFirstOrDefaultAsync<int>(queryGetID, new {cnpj = cnpj});
+                return entregadorID;
+            }
+        }
     }
 }
     

@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IAdminService,VeiculoService>();
+builder.Services.AddScoped<IAdminService,AdminService>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IEntregadorService, EntregadorService>();
 builder.Services.AddScoped<IEntregadorRepository, EntregadorRepository>();

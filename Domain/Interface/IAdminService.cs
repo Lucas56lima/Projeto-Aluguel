@@ -8,6 +8,8 @@ namespace Domain.Interface
         Task<IEnumerable<VeiculoCommand>> GetAsyncVeiculo(string?placa);
         Task<string> PutAsyncVeiculo(int veiculoID, string placa);
         Task<string> DeleteAsyncVeiculo(int veiculoID);
-        Task<bool> VerificaPlaca(string placa);        
+        Task<bool> VerificaPlaca(string placa);
+        Task<string> PostAsyncPedido(PedidoCommand pedidoCommand);
+        Task<IEnumerable<EntregadorCommand>> GetEntregadoresDisponiveis();        
     }
 }
