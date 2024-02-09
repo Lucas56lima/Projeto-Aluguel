@@ -1,0 +1,2 @@
+﻿CREATE DATABASE AluguelVeiculos
+GO

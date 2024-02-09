@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "pgYVSnSPo4AdEp7djeOVGHDdky7nnErTuQwwy1I0li4DezAicy3Sb5tDht+4O1ThzLm1rNtdPa8xpIwR2E1Ebg==",
+  "dgSpecHash": "GSELXhvb/nolAAOPQwJ+pRMQgfe3RYq8Y8YHI2jKbtipeJe+qDMVLDv8POevR6nRuR/s3jr9tNNCzD9RhyuC3A==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Usuário\\Downloads\\Aluguel\\Domain\\Domain.csproj",
+  "projectFilePath": "C:\\Users\\lucas.flima27\\Source\\Repos\\DDDExample\\Domain\\Domain.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
