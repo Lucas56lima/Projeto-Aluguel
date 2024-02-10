@@ -12,7 +12,7 @@ namespace Repository.Repository
     public class EntregadorRepository : IEntregadorRepository
     {
 
-        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=*****;Database=AluguelVeiculos";
+        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=123456;Database=AluguelVeiculos";
         public async Task<string> PostEntregadorAsync(EntregadorCommand command)
         {
             string queryInsert = @"

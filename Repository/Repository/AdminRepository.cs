@@ -12,7 +12,7 @@ namespace Repository.Repository
 {
     public class AdminRepository : IAdminRepository
     {
-        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=15975323;Database=AluguelVeiculos";
+        string conexao = @"Host=localhost;Port=5432;Username=postgres;Password=123456;Database=AluguelVeiculos";
 
         public async Task<string> PostAsyncVeiculo(VeiculoCommand command)
         {

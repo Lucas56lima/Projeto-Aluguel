@@ -5,7 +5,7 @@ static int Main(string[] args)
 {
     var connectionString =
         args.FirstOrDefault()
-        ?? "Server=(local)\\SqlExpress; Database=MyApp; Trusted_connection=true";
+        ?? "Host=localhost;Port=5432;Username=postgres;Password=123456;Database=AluguelVeiculos";
 
     var upgrader =
         DeployChanges.To
